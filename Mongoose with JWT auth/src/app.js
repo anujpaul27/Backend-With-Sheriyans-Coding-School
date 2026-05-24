@@ -4,13 +4,14 @@ const jwt = require('jsonwebtoken')
 const cors = require('cors')
 const morgan = require('morgan')
 const authRouter = require('./routes/auth.routes')
-
+const cookieParser = require('cookie-parser')
 
 
 // Middleware 
 app.use(express.json())
 app.use(cors())
 app.use(morgan('dev'))
+app.use(cookieParser())
 
 app.use('/api/auth', authRouter)
 

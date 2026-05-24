@@ -30,15 +30,38 @@ async function register(req, res) {
       password: hashPassword,
     });
 
-    const token = jwt.sign({ id: user._id }, config.JWT_SECRET);
+    // create access token
+    const accessToken = jwt.sign(
+      {id: user._id},
+      config.JWT_SECRET,
+      {
+        expiresIn: '15m'
+      }
+    )
 
-    res.cookie("token", token);
+    // Create refresh token
+    const refreshToken = jwt.sign(
+      {id: user._id},
+      config.JWT_SECRET,
+      {
+        expiresIn: '7d'
+      }
+    )
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 *60 *1000 // 7 day
+    })
 
     // Success response
     res.status(201).json({
       message: "User Registration Successful.",
       data: user,
+      accessToken,
     });
+
   } catch (err) {
     res.status(403).json({
       message: err.message,
@@ -75,6 +98,7 @@ async function LogIn(req, res) {
     res.status(200).json({
       message: "Login Successful.",
       data: isUserExist,
+      token: token 
     });
   } catch (err) {
     res.status(403).json({
@@ -83,4 +107,47 @@ async function LogIn(req, res) {
   }
 }
 
-module.exports = { register, LogIn };
+async function refreshToken (req,res)
+{
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken)
+  {
+    return res.status(401).json({
+      message: 'Refresh token not found.'
+    })
+  }
+
+  // Create Access Token
+  const decode =  jwt.verify(refreshToken,config.JWT_SECRET)
+  const accessToken =  jwt.sign(
+    {id: decode.id},
+    config.JWT_SECRET,
+    {
+      expiresIn: '15m'
+    }
+  )
+
+  // reCreate refresh token 
+  const newRefreshToken = jwt.sign(
+    {id: decode.id},
+    config.JWT_SECRET,
+    {
+      expiresIn: '15m'
+    }
+  )
+
+  res.cookie('refreshToken', newRefreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: true,
+    maxAge: 7 * 24 *60 *60 *100 // 7 day
+  })
+
+  res.status(200).json({
+    message: 'Access Token Refreshed.',
+    accessToken
+  })
+}
+
+module.exports = { register, LogIn, refreshToken };
