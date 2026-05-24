@@ -3,7 +3,8 @@ const app = express()
 const jwt = require('jsonwebtoken')
 const cors = require('cors')
 const dotenv = require('dotenv')
-const router = require('./routes/auth.routes')
+const authRouter = require('./routes/auth.routes')
+
 dotenv.config()
 
 
@@ -11,6 +12,6 @@ dotenv.config()
 app.use(express.json())
 app.use(cors())
 
-app.use('/api/auth', router)
+app.use('/api/auth', authRouter)
 
 module.exports = app 
