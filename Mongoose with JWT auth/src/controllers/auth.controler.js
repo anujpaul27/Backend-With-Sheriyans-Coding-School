@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const config = require('../config/config')
 
 async function register(req, res) {
   try {
@@ -29,7 +30,7 @@ async function register(req, res) {
       password: hashPassword,
     });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id }, config.JWT_SECRET);
 
     res.cookie("token", token);
 
@@ -67,7 +68,7 @@ async function LogIn(req, res) {
       });
     }
 
-    const token = jwt.sign({ id: isUserExist._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: isUserExist._id }, config.JWT_SECRET);
 
     res.cookie("token", token);
 
