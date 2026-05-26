@@ -17,6 +17,9 @@ authRouter.get('/login',authController.LogIn)
  */
 authRouter.get('/refresh-token',authController.refreshToken)
 
-
+/**
+ * GET /api/auth/logout
+ */
+// authRouter.get('/logout', )
 
 module.exports = authRouter
